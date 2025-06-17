@@ -1,7 +1,31 @@
 # chatPDF
 
+ChatPDF app allows you to upload a PDF and chat with it using a local Retrieval-Augmented Generation (RAG) pipeline.
 
-## How to Run
+### How it works:
+
+1. **PDF Upload & Chunking**  
+   When you upload a PDF, the app:
+   - Parses the document using `PyPDFLoader`
+   - Splits it into overlapping chunks for better semantic context
+   - Stores chunks in:
+     - A **local keyword database** (SQLite) for BM25 retrieval
+     - A **vector store** (Chroma) using MiniLM embeddings
+
+2. **RAG**  
+   Queries use an ensemble of:
+   - BM25 (keyword)
+   - Dense vector similarity
+   - Optional query rewriting (in *fusion* mode) using GPT to expand to 4 alternate formulations
+
+3. **Answer Generation (LLM)**  
+   Top documents are passed to an OpenAI model with a prompt restricting responses to the given context.
+
+### Modes:
+- `Simple QA` → direct retrieval and answering  
+- `Better QA` → query rewriting for better coverage
+
+### How to Run
 
 To run the chatPDF. App locally, follow these steps:
 
@@ -18,14 +42,11 @@ To run the chatPDF. App locally, follow these steps:
    pip install -r requirements.txt
    ```
 4. **Configure OpenAI API Key:**
-
-Obtain an API key from OpenAI [here](https://platform.openai.com/account/api-keys).
-
-Set the key as an environment variable before running the backend:
-
     ```bash
-    export OPENAI_API_KEY="sk-..."  # Replace with your actual key
-    ```
+   export OPENAI_API_KEY="sk-..."  # Replace with your actual key
+   ```
+    Obtain an API key from OpenAI [here](https://platform.openai.com/account/api-keys).
+
 5. **Run Backend:**
     ```bash
    python main.py
@@ -35,3 +56,18 @@ Set the key as an environment variable before running the backend:
     ```bash
         python3 -m http.server 5500     
     ```   
+
+### Improvements
+1. **Token-level Optimization**
+    - Adapt chunk size dynamically based on the LLM's max context length (e.g., GPT-4 vs GPT-3.5).
+
+2. **Multimodal Support**
+   - Integrate OCR to process scanned PDFs.
+   - Enable file types beyond PDF (images, videos, etc.)
+
+3. **Query Understanding & Rewriting**
+   - Use a smaller local LLM to rewrite or classify queries before answering.
+   - Auto-switch between summarization, QA, or citation mode depending on question type.
+
+4. **Advanced RRF Tuning**
+   - Incorporate Reciprocal Rank Fusion based on question type or retriever confidence.
