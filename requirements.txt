@@ -1,0 +1,15 @@
+# requirements.txt
+Flask>=3.0          # web server & routing
+langchain>=0.2      # RAG orchestration (loaders, chains)
+chromadb>=0.5       # persistent vector store
+sentence-transformers>=2.7  # HuggingFaceEmbeddings (pulls torch/transformers)
+pypdf>=4.0          # PDF parsing backend for PyPDFLoader
+openai>=1.30        # ChatOpenAI wrapper
+tiktoken>=0.6       # fast tokenization for OpenAI models
+python-dotenv>=1.0  # optional: load OPENAI_API_KEY from .env
+langchain-community
+rank_bm25
+numpy<2.0   
+langchain-huggingface
+flask-cors>=4.0            # NEW
+langchain-openai

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RAG Demo UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <div class="max-w-3xl mx-auto p-4">
+      <h1 class="text-2xl font-bold mb-4 text-center">RAG Demo</h1>
+
+      <!-- Upload Section -->
+      <section
+        id="upload-section"
+        class="bg-white p-4 rounded-xl shadow mb-6 flex flex-col gap-3"
+      >
+        <h2 class="text-lg font-semibold">1️⃣ Upload a file</h2>
+        <input
+          type="file"
+          id="fileInput"
+          class="border rounded p-2 w-full"
+          accept=".pdf,.txt,.md,.rst"
+        />
+        <button
+          id="uploadBtn"
+          class="bg-blue-600 hover:bg-blue-700 text-white rounded-md px-4 py-2 self-start"
+        >
+          Upload &amp; Index
+        </button>
+        <p id="uploadStatus" class="text-sm"></p>
+      </section>
+
+      <!-- Chat Section -->
+      <section
+        id="chat-section"
+        class="bg-white p-4 rounded-xl shadow flex flex-col h-[70vh]"
+      >
+        <h2 class="text-lg font-semibold mb-3">2️⃣ Ask questions</h2>
+
+        <!-- Mode selector -->
+        <div class="mb-3 flex items-center gap-2">
+          <label for="modeSelect" class="text-sm font-medium">Mode:</label>
+          <select id="modeSelect" class="border rounded p-2">
+            <option value="simple" selected>Simple QA</option>
+            <option value="fusion">Better QA</option>
+          </select>
+          <span id="modeHint" class="text-xs text-gray-500">Simple mode selected</span>
+        </div>
+
+        <!-- Chat history area -->
+        <div
+          id="chatHistory"
+          class="flex-1 overflow-y-auto border rounded p-3 mb-3 bg-gray-50"
+        ></div>
+
+        <!-- Input area -->
+        <div class="flex gap-2 items-center">
+          <input
+            id="queryInput"
+            type="text"
+            placeholder="Ask something about your documents..."
+            class="flex-1 border rounded p-2"
+          />
+          <button
+            id="sendBtn"
+            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
+          >
+            Send
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:8000";
+
+      const uploadBtn = document.getElementById("uploadBtn");
+      const fileInput = document.getElementById("fileInput");
+      const uploadStatus = document.getElementById("uploadStatus");
+
+      const sendBtn = document.getElementById("sendBtn");
+      const queryInput = document.getElementById("queryInput");
+      const chatHistory = document.getElementById("chatHistory");
+      const modeSelect = document.getElementById("modeSelect");
+      const modeHint = document.getElementById("modeHint");
+
+      // --- helpers ------------------------------------------------------
+      function addBubble(text, sender = "user", sources = []) {
+        const wrapper = document.createElement("div");
+        wrapper.className = `mb-4 flex ${
+          sender === "user" ? "justify-end" : "justify-start"
+        }`;
+
+        const bubble = document.createElement("div");
+        bubble.className = `max-w-[75%] px-4 py-2 rounded-lg shadow text-sm whitespace-pre-wrap ${
+          sender === "user" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-900"
+        }`;
+        bubble.textContent = text;
+        wrapper.appendChild(bubble);
+        chatHistory.appendChild(wrapper);
+
+        if (sender === "bot" && sources?.length) {
+          const list = document.createElement("ul");
+          list.className = "text-xs text-gray-600 ml-4 list-disc";
+          sources.forEach((s) => {
+            const li = document.createElement("li");
+            li.textContent = `${s.source} (page ${s.page})`;
+            list.appendChild(li);
+          });
+          chatHistory.appendChild(list);
+        }
+
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+      }
+
+      // --- Upload logic -------------------------------------------------
+      uploadBtn.addEventListener("click", async () => {
+        const file = fileInput.files[0];
+        if (!file) {
+          uploadStatus.textContent = "Please choose a file first.";
+          return;
+        }
+        uploadStatus.textContent = "Uploading…";
+        const formData = new FormData();
+        formData.append("file", file);
+        try {
+          const res = await fetch(`${API_BASE}/upload`, {
+            method: "POST",
+            body: formData,
+          });
+          const json = await res.json();
+          uploadStatus.textContent = res.ok ? `✓ ${json.status}` : `Error: ${json.error ?? res.statusText}`;
+        } catch (err) {
+          uploadStatus.textContent = `Network error: ${err.message}`;
+        }
+      });
+
+      // --- Query logic --------------------------------------------------
+      sendBtn.addEventListener("click", sendQuery);
+      queryInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") sendQuery();
+      });
+
+      async function sendQuery() {
+        const query = queryInput.value.trim();
+        if (!query) return;
+        queryInput.value = "";
+        addBubble(query, "user");
+
+        const mode = modeSelect.value;
+        try {
+          const res = await fetch(`${API_BASE}/query`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query, mode }),
+          });
+          const json = await res.json();
+          if (res.ok) {
+            addBubble(json.answer, "bot", json.sources);
+          } else {
+            addBubble(`Error: ${json.error ?? res.statusText}`, "bot");
+          }
+        } catch (err) {
+          addBubble(`Network error: ${err.message}`, "bot");
+        }
+      }
+
+      // --- Mode change: clear chat -------------------------------------
+      modeSelect.addEventListener("change", () => {
+        chatHistory.innerHTML = "";
+        modeHint.textContent = modeSelect.value === "fusion" ? "Query Optimized Search selected" : "Simple search selected";
+      });
+    </script>
+  </body>
+</html>
