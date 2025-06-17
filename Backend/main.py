@@ -156,8 +156,6 @@ def build_compressed_retriever():
     return ContextualCompressionRetriever(base_compressor=compressor, base_retriever=ensemble)
 
 # ----------------------- Answer helpers -------------------------------- #
-
-
 def answer_simple_qa(user_query: str, llm):
     simple_retriever = build_compressed_retriever()
     docs = simple_retriever.get_relevant_documents(user_query)
@@ -206,7 +204,7 @@ def query():
 
     body = request.get_json() or {}
     user_query = body.get("query")
-    mode = body.get("mode", "simple")  # "fusion" → full RRF, else simple
+    mode = body.get("mode", "simple") 
     if not user_query:
         return jsonify(error="missing query"), 400
 
