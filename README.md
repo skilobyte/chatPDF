@@ -2,6 +2,9 @@
 
 ChatPDF app allows you to upload a PDF and chat with it using a Retrieval-Augmented Generation (RAG) pipeline.
 
+![frontend/chatPDF-demo.png](https://github.com/skilobyte/chatPDF/blob/main/Frontend/chatPDF-demo.png)
+
+
 ### How it works:
 
 1. **PDF Upload & Chunking**  
