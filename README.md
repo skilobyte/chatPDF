@@ -55,8 +55,9 @@ To run the chatPDF. App locally, follow these steps:
 6. **Run Frontend (Run in a new terminal):**
     ```bash
     cd Frontend
-    python3 -m http.server 5500     
-    ```   
+    python -m http.server 5500     
+    ```
+7. **Demo the App [here](http://localhost:5500/).**
 
 ### Improvements
 1. **Token-level Optimization**
