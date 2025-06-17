@@ -21,7 +21,7 @@ ChatPDF app allows you to upload a PDF and chat with it using a Retrieval-Augmen
    Queries use an ensemble of:
    - BM25 (keyword)
    - Dense vector similarity
-   - Optional query rewriting (in *fusion* mode) using GPT to expand to 4 alternate formulations
+   - Optional query rewriting (in *Better QA* mode) using GPT to expand to 4 alternate formulations
 
 3. **Answer Generation (LLM)**  
    Top documents are passed to an OpenAI model with a prompt restricting responses to the given context.
