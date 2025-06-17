@@ -1,6 +1,6 @@
 # chatPDF
 
-ChatPDF app allows you to upload a PDF and chat with it using a local Retrieval-Augmented Generation (RAG) pipeline.
+ChatPDF app allows you to upload a PDF and chat with it using a Retrieval-Augmented Generation (RAG) pipeline.
 
 ### How it works:
 
