@@ -51,7 +51,7 @@ To run the chatPDF. App locally, follow these steps:
     ```bash
    python Backend/main.py
    ```
-    This will start the Backend Flask server on port  ```5000```
+    This will start the Backend Flask server on port  ```8000```
 6. **Run Frontend (Run in a new terminal):**
     ```bash
     cd Frontend
