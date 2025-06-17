@@ -41,7 +41,7 @@ To run the chatPDF. App locally, follow these steps:
     ```bash
    pip install -r requirements.txt
    ```
-4. **Configure OpenAI API Key:**
+4. **Configure OpenAI API Key in the terminal:**
     ```bash
    export OPENAI_API_KEY="sk-..."  # Replace with your actual key
    ```
